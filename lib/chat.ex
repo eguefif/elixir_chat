@@ -20,6 +20,9 @@ defmodule Chat do
   end
 
   defp serve(socket) do
+    {ip, port} = get_ip_port(socket)
+    Logger.info("Serving new connexion: #{ip}:#{port}")
+
     with {:ok, data} <- read_line(socket),
          :ok <- write_line(data, socket) do
       serve(socket)
@@ -34,5 +37,16 @@ defmodule Chat do
 
   defp write_line(line, socket) do
     :gen_tcp.send(socket, line)
+  end
+
+  def get_ip_port(socket) do
+    case :inet.peername(socket) do
+      {:ok, {ip, port}} ->
+        addr = :inet.ntoa(ip) |> to_string()
+        {addr, port}
+
+      {:error, reason} ->
+        Logger.info("Error while getting IP adress: #{reason}")
+    end
   end
 end
