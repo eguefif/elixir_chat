@@ -24,7 +24,7 @@ defmodule Chat do
     Logger.info("Serving new connexion: #{ip}:#{port}")
 
     with {:ok, data} <- read_line(socket),
-         :ok <- write_line(data, socket) do
+         :ok <- broadcast_line(data, socket) do
       serve(socket)
     else
       _ -> Logger.info("Client disconnection")
@@ -35,7 +35,7 @@ defmodule Chat do
     :gen_tcp.recv(socket, 0)
   end
 
-  defp write_line(line, socket) do
+  defp broadcast_line(line, socket) do
     :gen_tcp.send(socket, line)
   end
 
