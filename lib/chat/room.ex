@@ -28,6 +28,11 @@ defmodule Chat.Room do
     GenServer.call(server, {:remove_client, name})
   end
 
+  # TODO: add test for broadcast
+  def broadcast(server, messages) do
+    GenServer.call(server, {:broadcast, messages})
+  end
+
   # Server API
 
   @impl true
@@ -43,15 +48,8 @@ defmodule Chat.Room do
   end
 
   @impl true
-  def handle_call({:add_messages, name, messages}, _from, clients) do
-    # concatenated = Enum.join(messages, "    \n")
-    # Logger.info("ROOM: update message for #{name}:")
-    # Logger.info("    #{concatenated}")
-
-    {_, clients} =
-      Map.get_and_update(clients, name, fn current_value ->
-        {current_value, [messages | current_value] |> List.flatten()}
-      end)
+  def handle_call({:add_messages, client, messages}, _from, clients) do
+    {_, clients} = add_messages(clients, client, messages)
 
     {:reply, clients, clients}
   end
@@ -70,5 +68,21 @@ defmodule Chat.Room do
   def handle_call({:remove_client, name}, _from, clients) do
     {_, clients} = Map.pop(clients, name)
     {:reply, true, clients}
+  end
+
+  @impl true
+  def handle_call({:broadcast, messages}, _from, clients) do
+    Map.keys(clients)
+    |> Enum.each(fn client ->
+      add_messages(clients, client, messages)
+    end)
+
+    {:reply, true, clients}
+  end
+
+  defp add_messages(clients, client, messages) do
+    Map.get_and_update(clients, client, fn current_value ->
+      {current_value, [messages | current_value] |> List.flatten()}
+    end)
   end
 end
