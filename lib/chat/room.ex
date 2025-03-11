@@ -81,6 +81,8 @@ defmodule Chat.Room do
   end
 
   defp add_messages(clients, client, messages) do
+    Logger.debug("Adding message to #{client}: #{messages}")
+
     Map.get_and_update(clients, client, fn current_value ->
       {current_value, [messages | current_value] |> List.flatten()}
     end)

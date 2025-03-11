@@ -6,7 +6,7 @@ defmodule Chat.Application do
     port = String.to_integer(System.get_env("PORT") || "4040")
 
     children = [
-      Chat.Room,
+      {Chat.Room, name: Chat.Room},
       {Task.Supervisor, name: Chat.TaskSupervisor},
       Supervisor.child_spec({Task, fn -> Chat.accept(port) end}, restart: :permanent)
     ]

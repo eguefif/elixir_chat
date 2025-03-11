@@ -23,11 +23,25 @@ defmodule Chat do
     {ip, port} = get_ip_port(socket)
     Logger.info("Serving new connexion: #{ip}:#{port}")
 
+    name = get_name(socket)
+    Chat.Room.add_client(Chat.Room, name)
+
     with {:ok, data} <- read_line(socket),
-         :ok <- broadcast_line(data, socket) do
+         :ok <- broadcast_line(data) do
       serve(socket)
     else
       _ -> Logger.info("Client disconnection")
+    end
+  end
+
+  def get_name(socket) do
+    case read_line(socket) do
+      {:ok, name} ->
+        name
+
+      {:error, e} ->
+        Logger.error("Error while retrieving client's name: #{e}")
+        :error
     end
   end
 
@@ -35,8 +49,9 @@ defmodule Chat do
     :gen_tcp.recv(socket, 0)
   end
 
-  defp broadcast_line(line, socket) do
-    :gen_tcp.send(socket, line)
+  defp broadcast_line(message) do
+    Chat.Room.broadcast(Chat.Room, [message])
+    :ok
   end
 
   def get_ip_port(socket) do
