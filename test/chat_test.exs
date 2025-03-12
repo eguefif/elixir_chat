@@ -1,2 +1,0 @@
-defmodule ChatTest do
-end

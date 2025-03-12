@@ -1,4 +1,4 @@
-defmodule Chat do
+defmodule ChatTcp do
   require Logger
 
   def accept(port) do
@@ -20,11 +20,11 @@ defmodule Chat do
   end
 
   defp add_client(socket) do
-    Chat.Room.add_client(Chat.Room, get_name(socket))
+    ChatRoom.add_client(ChatRoom, get_name(socket))
   end
 
   defp serve(socket) do
-    if not Chat.Room.is_registered?(Chat.Room) do
+    if not ChatRoom.is_registered?(ChatRoom) do
       add_client(socket)
     end
 
@@ -58,12 +58,12 @@ defmodule Chat do
   end
 
   defp broadcast_line(message) do
-    Chat.Room.broadcast(Chat.Room, message)
+    ChatRoom.broadcast(ChatRoom, message)
     :ok
   end
 
   defp serve_write(socket) do
-    messages = Chat.Room.get_messages(Chat.Room)
+    messages = ChatRoom.get_messages(ChatRoom)
     if messages != [], do: send_messages(socket, messages)
   end
 
