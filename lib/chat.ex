@@ -11,31 +11,39 @@ defmodule Chat do
 
   defp loop_acceptor(socket) do
     with {:ok, client} <- :gen_tcp.accept(socket),
-         {:ok, pid} <- Task.Supervisor.start_child(Chat.TaskSupervisor, fn -> serve(client) end) do
-      :ok = :gen_tcp.controlling_process(client, pid)
+         {:ok, pid} <- Task.Supervisor.start_child(Chat.TaskSupervisor, fn -> serve(client) end),
+         :ok = :gen_tcp.controlling_process(client, pid) do
       loop_acceptor(socket)
     else
       e -> Logger.error("Error while accepting new connection: #{e}")
     end
   end
 
-  defp serve(socket) do
-    {ip, port} = get_ip_port(socket)
-    Logger.info("Serving new connexion: #{ip}:#{port}")
+  defp add_client(socket) do
+    Chat.Room.add_client(Chat.Room, get_name(socket))
+  end
 
-    name = get_name(socket)
-    Chat.Room.add_client(Chat.Room, name)
+  defp serve(socket) do
+    if not Chat.Room.is_registered?(Chat.Room) do
+      add_client(socket)
+    end
 
     with {:ok, data} <- read_line(socket),
          :ok <- broadcast_line(data) do
+      serve_write(socket)
       serve(socket)
     else
-      _ -> Logger.info("Client disconnection")
+      {:error, :timeout} ->
+        serve_write(socket)
+        serve(socket)
+
+      _ ->
+        Logger.info("Client disconnection")
     end
   end
 
   def get_name(socket) do
-    case read_line(socket) do
+    case :gen_tcp.recv(socket, 0) do
       {:ok, name} ->
         name
 
@@ -46,22 +54,21 @@ defmodule Chat do
   end
 
   defp read_line(socket) do
-    :gen_tcp.recv(socket, 0)
+    :gen_tcp.recv(socket, 0, 100)
   end
 
   defp broadcast_line(message) do
-    Chat.Room.broadcast(Chat.Room, [message])
+    Chat.Room.broadcast(Chat.Room, message)
     :ok
   end
 
-  def get_ip_port(socket) do
-    case :inet.peername(socket) do
-      {:ok, {ip, port}} ->
-        addr = :inet.ntoa(ip) |> to_string()
-        {addr, port}
+  defp serve_write(socket) do
+    messages = Chat.Room.get_messages(Chat.Room)
+    if messages != [], do: send_messages(socket, messages)
+  end
 
-      {:error, reason} ->
-        Logger.info("Error while getting IP adress: #{reason}")
-    end
+  defp send_messages(socket, messages) do
+    messages = messages |> Enum.join("\n")
+    :gen_tcp.send(socket, messages)
   end
 end
