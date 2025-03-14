@@ -1,20 +1,13 @@
 defmodule ChatClients.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
-  @moduledoc false
-
   use Application
 
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: ChatClients.Worker.start_link(arg)
-      # {ChatClients.Worker, arg}
+      {ChatClients, name: ChatClients.Supervisor}
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: ChatClients.Supervisor]
+    opts = [strategy: :one_for_one]
     Supervisor.start_link(children, opts)
   end
 end
