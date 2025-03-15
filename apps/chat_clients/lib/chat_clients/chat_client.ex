@@ -29,7 +29,6 @@ defmodule ChatClient do
   def add_message(client, message) do
     Agent.update(client, fn state ->
       Map.update(state, "messages", %{"name" => "", "messages" => []}, fn value ->
-        Logger.info("Current: #{value} + #{message}")
         value ++ [message]
       end)
     end)
