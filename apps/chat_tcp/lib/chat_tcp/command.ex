@@ -15,7 +15,15 @@ defmodule Chat.Command do
 
   def run({:add_client, name}) do
     Logger.info("Adding client: #{name}")
-    ChatClients.add_client(ChatClients.Supervisor, name)
+    ChatClients.add_client(name)
+    :ok
+  end
+
+  def run({:whisper, interlocutor, content}) do
+    Logger.info("Whispering to #{interlocutor}")
+    name = ChatClients.get_name()
+    msg = name <> ": " <> content
+    ChatClients.add_message(interlocutor, msg)
     :ok
   end
 end
