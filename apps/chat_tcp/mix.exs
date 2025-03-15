@@ -25,7 +25,8 @@ defmodule ChatTcp.MixProject do
 
   defp deps do
     [
-      {:chat_room, in_umbrella: true}
+      {:chat_room, in_umbrella: true},
+      {:chat_clients, in_umbrella: true}
     ]
   end
 end

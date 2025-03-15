@@ -19,37 +19,19 @@ defmodule ChatTcp do
     end
   end
 
-  defp add_client(socket) do
-    ChatRoom.add_client(ChatRoom, get_name(socket))
-  end
-
   defp serve(socket) do
-    if not ChatRoom.is_registered?(ChatRoom) do
-      add_client(socket)
-    end
-
-    with {:ok, data} <- read_line(socket),
-         :ok <- broadcast_line(data) do
-      serve_write(socket)
+    with {:ok, line} <- read_line(socket),
+         {:ok, data} <- Chat.Command.parse(line),
+         :ok <- Chat.Command.run(data) do
+      write_message(socket)
       serve(socket)
     else
       {:error, :timeout} ->
-        serve_write(socket)
+        write_message(socket)
         serve(socket)
 
-      _ ->
-        Logger.info("Client disconnection")
-    end
-  end
-
-  def get_name(socket) do
-    case :gen_tcp.recv(socket, 0) do
-      {:ok, name} ->
-        name
-
-      {:error, e} ->
-        Logger.error("Error while retrieving client's name: #{e}")
-        :error
+      {:error, reason} ->
+        Logger.error("Error serving client #{reason}")
     end
   end
 
@@ -57,18 +39,16 @@ defmodule ChatTcp do
     :gen_tcp.recv(socket, 0, 100)
   end
 
-  defp broadcast_line(message) do
-    ChatRoom.broadcast(ChatRoom, message)
-    :ok
-  end
+  defp write_message(socket) do
+    case ChatClients.get_messages() do
+      {:error, :key_error, pid} ->
+        Logger.error("Error getting message, wrong key for #{inspect(pid)}")
 
-  defp serve_write(socket) do
-    messages = ChatRoom.get_messages(ChatRoom)
-    if messages != [], do: send_messages(socket, messages)
-  end
+      [] ->
+        nil
 
-  defp send_messages(socket, messages) do
-    messages = messages |> Enum.join("\n")
-    :gen_tcp.send(socket, messages)
+      messages ->
+        :gen_tcp.send(socket, Enum.join(messages, "\n"))
+    end
   end
 end

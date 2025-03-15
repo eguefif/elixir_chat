@@ -1,8 +1,13 @@
 defmodule ChatClientsTest do
-  use ExUnit.Case
-  doctest ChatClients
+  use ExUnit.Case, async: true
 
-  test "greets the world" do
-    assert ChatClients.hello() == :world
+  setup do
+    {:ok, client} = ChatClient.start_link(:ok)
+    %{client: client}
+  end
+
+  test "add messages", %{client: client} do
+    ChatClient.add_message(client, "Hello, World")
+    assert ChatClient.get_messages(client) == ["Hello, World"]
   end
 end
