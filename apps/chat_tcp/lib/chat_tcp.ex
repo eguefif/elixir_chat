@@ -23,9 +23,11 @@ defmodule ChatTcp do
     with {:ok, line} <- read_line(socket),
          {:ok, data} <- Chat.Command.parse(line),
          :ok <- Chat.Command.run(data) do
+      write_message(socket)
       serve(socket)
     else
       {:error, :timeout} ->
+        write_message(socket)
         serve(socket)
 
       {:error, reason} ->
@@ -35,5 +37,18 @@ defmodule ChatTcp do
 
   defp read_line(socket) do
     :gen_tcp.recv(socket, 0, 100)
+  end
+
+  defp write_message(socket) do
+    case ChatClients.get_messages() do
+      {:error, :key_error, pid} ->
+        Logger.error("Error getting message, wrong key for #{inspect(pid)}")
+
+      [] ->
+        nil
+
+      messages ->
+        :gen_tcp.send(socket, Enum.join(messages, "\n"))
+    end
   end
 end

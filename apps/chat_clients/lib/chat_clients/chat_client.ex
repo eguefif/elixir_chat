@@ -7,7 +7,7 @@ defmodule ChatClient do
   end
 
   def is_client(client, name) do
-    name == Agent.get(client, &Map.get(&1, "name"))
+    String.trim(name) == Agent.get(client, &Map.get(&1, "name"))
   end
 
   def get_messages(client) do

@@ -16,6 +16,7 @@ defmodule ChatClients do
   end
 
   def add_message(interlocutor, message) do
+    Logger.debug("In add message")
     GenServer.call(__MODULE__, {:add_message, interlocutor, message})
   end
 
@@ -43,7 +44,6 @@ defmodule ChatClients do
       refs = Map.put(refs, ref, pid)
       require Logger
       Logger.info("Adding client Genserver: #{inspect(clients)}")
-      Logger.debug("Gen serv: #{inspect(self())}")
       {:reply, pid, {clients, refs}}
     end
   end
@@ -66,6 +66,7 @@ defmodule ChatClients do
            Enum.find(clients_list, fn {_, client} ->
              ChatClient.is_client(client, interlocutor)
            end) do
+      Logger.debug("Found client: #{inspect(client)}")
       ChatClient.add_message(client, message)
       {:reply, :ok, {clients, refs}}
     else

@@ -4,10 +4,20 @@ defmodule Chat.Command do
   def parse(line) do
     Logger.info("Parsing: #{line}")
 
-    case String.split(line) do
-      ["NAME", msg] -> {:ok, {:add_client, msg}}
-      ["WHISPER", interlocutor, content] -> {:ok, {:whisper, interlocutor, content}}
+    case String.split(line, " ", parts: 2, trim: true) do
+      ["NAME", msg] -> {:ok, {:add_client, String.trim(msg)}}
+      ["WHISPER", args] -> get_whisper(args)
       _ -> {:error, :unknown_command}
+    end
+  end
+
+  def get_whisper(args) do
+    case String.split(args, " ", parts: 2, trim: true) do
+      [interlocutor, content] ->
+        {:ok, {:whisper, String.trim(interlocutor), String.trim(content)}}
+
+      _ ->
+        {:error, :wrong_whisper_format}
     end
   end
 
@@ -20,7 +30,7 @@ defmodule Chat.Command do
   end
 
   def run({:whisper, interlocutor, content}) do
-    Logger.info("Whispering to #{interlocutor}")
+    Logger.info("Whispering to #{interlocutor}: content: #{content}")
     name = ChatClients.get_name()
     msg = name <> ": " <> content
     ChatClients.add_message(interlocutor, msg)
