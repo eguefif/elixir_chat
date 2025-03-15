@@ -1,4 +1,6 @@
 # Chat
 
-**TODO: Add description**
-
+Learning project. The knowledge goals are:
+* Agent
+* GenServer
+* Tree Supervisor
