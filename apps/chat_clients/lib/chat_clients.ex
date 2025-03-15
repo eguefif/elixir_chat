@@ -44,6 +44,8 @@ defmodule ChatClients do
       clients = Map.put(clients, id, client)
       ref = Process.monitor(client)
       refs = Map.put(refs, ref, id)
+      require Logger
+      Logger.info("Adding client Genserver: #{inspect(clients)}")
       {:reply, id, {clients, refs}}
     end
   end
