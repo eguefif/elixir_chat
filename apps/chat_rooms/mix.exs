@@ -1,9 +1,9 @@
-defmodule ChatRoom.MixProject do
+defmodule ChatRooms.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :chat_room,
+      app: :chat_rooms,
       version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -19,7 +19,7 @@ defmodule ChatRoom.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {ChatRoom.Application, []}
+      mod: {ChatRooms.Application, []}
     ]
   end
 
