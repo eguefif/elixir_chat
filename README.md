@@ -1,7 +1,6 @@
 # Chat
 
 ## Description
-
 Learning project. The knowledge goals are:
 * Agent
 * GenServer
@@ -12,7 +11,6 @@ Learning project. The knowledge goals are:
 ### Dependencies
 
 * Elixir
-
 
 ### Executing program
 
