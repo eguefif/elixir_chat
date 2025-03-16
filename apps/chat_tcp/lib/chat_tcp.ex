@@ -30,6 +30,10 @@ defmodule ChatTcp do
         send_error(socket, "Unknown command")
         serve(socket)
 
+      {:error, :unnamed_client} ->
+        send_error(socket, "You need to defined your name first")
+        serve(socket)
+
       {:error, :timeout} ->
         write_message(socket)
         serve(socket)
@@ -45,8 +49,8 @@ defmodule ChatTcp do
 
   defp write_message(socket) do
     case ChatClients.get_messages() do
-      {:error, :key_error, pid} ->
-        Logger.error("Error getting message, wrong key for #{inspect(pid)}")
+      {:error, :key_error, _} ->
+        nil
 
       [] ->
         nil

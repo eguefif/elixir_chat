@@ -71,7 +71,12 @@ defmodule ChatClients do
   @impl true
   def handle_call({:get_name}, {pid, _}, {clients, refs, clients_name}) do
     client = Map.get(clients, pid)
-    {:reply, ChatClient.get_name(client), {clients, refs, clients_name}}
+
+    if client != nil do
+      {:reply, ChatClient.get_name(client), {clients, refs, clients_name}}
+    else
+      {:reply, :unknown_client, {clients, refs, clients_name}}
+    end
   end
 
   @impl true

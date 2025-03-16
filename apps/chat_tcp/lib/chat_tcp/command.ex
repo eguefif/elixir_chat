@@ -42,14 +42,24 @@ defmodule Chat.Command do
   def run({:join_room, room}) do
     Logger.info("Joining room #{room}")
     name = ChatClients.get_name()
-    ChatRooms.add_client(room, name)
-    :ok
+
+    if name != :unknown_client do
+      ChatRooms.add_client(room, name)
+      :ok
+    else
+      {:error, :unnamed_client}
+    end
   end
 
   def run({:leave_room, room}) do
     Logger.info("Leaving room #{room}")
     name = ChatClients.get_name()
-    ChatRooms.remove_client(room, name)
-    :ok
+
+    if name != nil do
+      ChatRooms.remove_client(room, name)
+      :ok
+    else
+      {:error, :unnamed_client}
+    end
   end
 end
