@@ -38,8 +38,7 @@ defmodule ChatClients do
     if Map.has_key?(clients, pid) do
       {:noreply, {clients, refs}}
     else
-      {:ok, client} = ChatClient.start_link(:ok)
-      ChatClient.set_name(client, name)
+      {:ok, client} = ChatClient.start_link(name)
       clients = Map.put(clients, pid, client)
       clients_name = Map.put(clients_name, name, client)
       ref = Process.monitor(client)
@@ -71,7 +70,12 @@ defmodule ChatClients do
   @impl true
   def handle_call({:get_name}, {pid, _}, {clients, refs, clients_name}) do
     client = Map.get(clients, pid)
-    {:reply, ChatClient.get_name(client), {clients, refs, clients_name}}
+
+    if client != nil do
+      {:reply, ChatClient.get_name(client), {clients, refs, clients_name}}
+    else
+      {:reply, :unknown_client, {clients, refs, clients_name}}
+    end
   end
 
   @impl true

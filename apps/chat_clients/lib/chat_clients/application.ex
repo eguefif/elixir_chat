@@ -4,7 +4,7 @@ defmodule ChatClients.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      #  {ChatClients, name: ChatClients.Supervisor}
+      {ChatClients, name: ChatClients}
     ]
 
     opts = [strategy: :one_for_one]

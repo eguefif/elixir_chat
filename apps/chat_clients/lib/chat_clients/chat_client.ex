@@ -2,8 +2,8 @@ defmodule ChatClient do
   use Agent
   require Logger
 
-  def start_link(:ok) do
-    Agent.start_link(fn -> %{"name" => "", "messages" => []} end)
+  def start_link(name) do
+    Agent.start_link(fn -> %{"name" => name, "messages" => []} end)
   end
 
   def is_client(client, name) do

@@ -1,2 +1,0 @@
-defmodule ChatRoomTest do
-end
