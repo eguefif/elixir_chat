@@ -11,6 +11,7 @@ defmodule ChatTcp.Application do
 
     children = [
       {ChatClients, name: ChatClients},
+      {ChatRooms, name: ChatRooms},
       {Task.Supervisor, name: Chat.TaskSupervisor},
       Supervisor.child_spec({Task, fn -> ChatTcp.accept(port) end}, restart: :permanent)
     ]

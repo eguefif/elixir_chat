@@ -4,10 +4,10 @@ defmodule ChatRoom.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {ChatRooms, name: ChatRooms}
+      #  {ChatClients, name: ChatClients.Supervisor}
     ]
 
-    opts = [strategy: :one_for_one, name: ChatRooms.Supervisor]
+    opts = [strategy: :one_for_one]
     Supervisor.start_link(children, opts)
   end
 end
