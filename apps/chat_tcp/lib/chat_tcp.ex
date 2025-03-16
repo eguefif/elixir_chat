@@ -26,6 +26,10 @@ defmodule ChatTcp do
       write_message(socket)
       serve(socket)
     else
+      {:error, :unknown_command} ->
+        send_error(socket, "Unknown command")
+        serve(socket)
+
       {:error, :timeout} ->
         write_message(socket)
         serve(socket)
@@ -48,7 +52,11 @@ defmodule ChatTcp do
         nil
 
       messages ->
-        :gen_tcp.send(socket, Enum.join(messages, "\n"))
+        :gen_tcp.send(socket, Enum.join(messages, "\r\n"))
     end
+  end
+
+  defp send_error(socket, error) do
+    :gen_tcp.send(socket, error <> "\r\n")
   end
 end
