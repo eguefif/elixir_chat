@@ -10,8 +10,6 @@ defmodule ChatTcp.Application do
     port = String.to_integer(System.get_env("PORT") || "4040")
 
     children = [
-      {ChatClients, name: ChatClients},
-      {ChatRooms, name: ChatRooms},
       {Task.Supervisor, name: Chat.TaskSupervisor},
       Supervisor.child_spec({Task, fn -> ChatTcp.accept(port) end}, restart: :permanent)
     ]

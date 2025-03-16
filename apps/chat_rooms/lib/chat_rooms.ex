@@ -8,16 +8,16 @@ defmodule ChatRooms do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
 
-  def add_client(server) do
-    GenServer.call(server, :add_client)
+  def add_client(room, name) do
+    GenServer.call(__MODULE__, {:add_client, room, name})
   end
 
-  def broadcast(server, message) do
-    GenServer.call(server, {:broadcast, message})
+  def broadcast(room, message) do
+    GenServer.call(__MODULE__, {:broadcast, room, message})
   end
 
-  def remove_client(server) do
-    GenServer.call(server, :remove_client)
+  def remove_client(room, client) do
+    GenServer.call(__MODULE__, {:remove_client, room, client})
   end
 
   # Server API
@@ -28,7 +28,7 @@ defmodule ChatRooms do
   end
 
   @impl true
-  def handle_call({:join_client, room_name, client}, _, rooms) do
+  def handle_call({:add_client, room_name, client}, _, rooms) do
     if Map.has_key?(rooms, room_name) do
       room = Map.get(rooms, room_name)
       ChatRoom.join(room, client)

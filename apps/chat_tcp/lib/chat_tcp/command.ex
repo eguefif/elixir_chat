@@ -41,11 +41,15 @@ defmodule Chat.Command do
 
   def run({:join_room, room}) do
     Logger.info("Joining room #{room}")
-    {:error, :not_yet_implemented}
+    name = ChatClients.get_name()
+    ChatRooms.add_client(room, name)
+    :ok
   end
 
   def run({:leave_room, room}) do
     Logger.info("Leaving room #{room}")
-    {:error, :not_yet_implemented}
+    name = ChatClients.get_name()
+    ChatRooms.remove_client(room, name)
+    :ok
   end
 end
